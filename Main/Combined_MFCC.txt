@@ -1,0 +1,53 @@
+
+############### LOAD PICKLE ###################
+
+############### DATA SPLITTING ###################
+(9326, 77568)
+(9326,)
+Counter({0: 8460, 1: 866})
+Counter({0: 5414, 1: 554})
+Counter({0: 1353, 1: 139})
+
+############### DATA AUGMENTATION PROCESS ###################
+Train data Before:
+(5968, 77568)(5968,)
+Validation data Before:
+(1492, 77568)(1492,)
+Total of generated data:
+2770
+Total of generated data:
+695
+Train data after augmentation:
+(8738, 77568)(8738,)
+Validation data after augmentation:
+(2187, 77568)(2187,)
+
+############### SMOTE-ENN PROCESS ###################
+Before OverSampling, counts of y label: Counter({0: 5414, 1: 3324})
+After OverSampling, the shape of X_train: (2638, 77568)
+After OverSampling, the shape of y: (2638,) 
+
+After OverSampling, counts of label '0': 237
+After OverSampling, counts of label '1': 2401
+
+############### FEATURE EXTRACTION ###################
+X Train Shape is: (2638, 40, 152, 1)
+y Train Shape is: (2638, 2)
+X Test Shape is: (1866, 40, 152, 1)
+y Test Shape is: (1866, 2)
+X Val Shape is: (2187, 40, 152, 1)
+y Val Shape is: (2187, 2)
+
+############### EVALUATION ###################
+Metrics : Loss, Precision, AUC, Recall, F1 Score
+CNN MODEL:
+[0.9582262635231018, 0.635254979133606, 0.6157112121582031, 0.6141479015350342, 0.6228193640708923]
+
+RESNET MODEL:
+[10.084803581237793, 0.7315956950187683, 0.7463688254356384, 0.7315956950187683, 0.2227754145860672]
+
+EFFICIENTNET MODEL:
+[5.787813663482666, 0.11361200362443924, 0.0979611873626709, 0.11361200362443924, 0.11345338076353073]
+
+VGGISH MODEL:
+[12.938570976257324, 0.24463938176631927, 0.16314423084259033, 0.26902464032173157, 0.25546905398368835]

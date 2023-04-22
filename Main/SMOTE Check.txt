@@ -1,0 +1,44 @@
+
+############### LOAD PICKLE ###################
+
+############### DATA SPLITTING ###################
+(9326, 77568)
+(9326,)
+Counter({0: 8460, 1: 866})
+Counter({0: 5414, 1: 554})
+Counter({0: 1353, 1: 139})
+
+############### DATA AUGMENTATION PROCESS ###################
+Train data Before:
+(5968, 77568)(5968,)
+Validation data Before:
+(1492, 77568)(1492,)
+Total of generated data:
+2770
+Total of generated data:
+695
+Train data after augmentation:
+(8738, 77568)(8738,)
+Validation data after augmentation:
+(2187, 77568)(2187,)
+
+############### SMOTE-ENN PROCESS ###################
+Before OverSampling, counts of y label: Counter({0: 5414, 1: 3324})
+SMOTE-ENN Strat: 0.7
+After OverSampling, the shape of X_train: (3374, 77568)
+After OverSampling, the shape of y: (3374,) 
+
+After OverSampling, counts of label '0': 245
+After OverSampling, counts of label '1': 3129
+SMOTE-ENN Strat: 0.8
+After OverSampling, the shape of X_train: (4001, 77568)
+After OverSampling, the shape of y: (4001,) 
+
+After OverSampling, counts of label '0': 181
+After OverSampling, counts of label '1': 3820
+SMOTE-ENN Strat: 0.9
+After OverSampling, the shape of X_train: (4596, 77568)
+After OverSampling, the shape of y: (4596,) 
+
+After OverSampling, counts of label '0': 124
+After OverSampling, counts of label '1': 4472

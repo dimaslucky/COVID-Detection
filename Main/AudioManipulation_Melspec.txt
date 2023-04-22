@@ -1,0 +1,45 @@
+
+############### LOAD PICKLE ###################
+
+############### DATA SPLITTING ###################
+(9326, 77568)
+(9326,)
+Counter({0: 8460, 1: 866})
+Counter({0: 5414, 1: 554})
+Counter({0: 1353, 1: 139})
+
+############### DATA AUGMENTATION PROCESS ###################
+Train data Before:
+(5968, 77568)(5968,)
+Validation data Before:
+(1492, 77568)(1492,)
+Total of generated data:
+2770
+Total of generated data:
+695
+Train data after augmentation:
+(8738, 77568)(8738,)
+Validation data after augmentation:
+(2187, 77568)(2187,)
+
+############### FEATURE EXTRACTION ###################
+X Train Shape is: (8738, 128, 152, 1)
+y Train Shape is: (8738, 2)
+X Test Shape is: (1866, 128, 152, 1)
+y Test Shape is: (1866, 2)
+X Val Shape is: (2187, 128, 152, 1)
+y Val Shape is: (2187, 2)
+
+############### EVALUATION ###################
+Metrics : Loss, Precision, AUC, Recall, F1 Score
+CNN MODEL:
+[0.49370166659355164, 0.8461950421333313, 0.8799324631690979, 0.8461950421333313, 0.8468220233917236]
+
+RESNET MODEL:
+[1.2886563539505005, 0.8397641777992249, 0.8881275057792664, 0.8397641777992249, 0.8404660820960999]
+
+EFFICIENTNET MODEL:
+[0.7799546122550964, 0.7465165853500366, 0.8403279781341553, 0.7465165853500366, 0.7471397519111633]
+
+VGGISH MODEL:
+[0.501104474067688, 0.9072883129119873, 0.9101117253303528, 0.9072883129119873, 0.9083685874938965]

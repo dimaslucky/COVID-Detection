@@ -1,0 +1,59 @@
+############### LOAD DATA ###################
+Counter({0: 4702, 1: 441})
+TOTAL IN DF:
+5143
+TOTAL IN DIRECTORY:
+4457
+LIST DIFFERENCE: 
+688
+688
+Counter({0: 4077, 1: 378})
+
+############### TRIMMING PROCESS ###################
+1.11
+2.592
+1.482
+4.8149999999999995
+
+############### DATA SPLITTING ###################
+(8056, 77039)
+(8056,)
+Counter({0: 7316, 1: 740})
+Counter({0: 4681, 1: 474})
+Counter({0: 1171, 1: 118})
+
+############### DATA AUGMENTATION PROCESS ###################
+Train data Before:
+(5155, 77039)(5155,)
+Validation data Before:
+(1289, 77039)(1289,)
+Total of generated data:
+2370
+Total of generated data:
+590
+Train data after augmentation:
+(7525, 77039)(7525,)
+Validation data after augmentation:
+(1879, 77039)(1879,)
+
+############### FEATURE EXTRACTION ###################
+X Train Shape is: (7525, 128, 151, 1)
+y Train Shape is: (7525, 2)
+X Test Shape is: (1612, 128, 151, 1)
+y Test Shape is: (1612, 2)
+X Val Shape is: (1879, 128, 151, 1)
+y Val Shape is: (1879, 2)
+
+############### EVALUATION ###################
+Metrics : Loss, Precision, AUC, Recall, F1 Score
+CNN MODEL:
+[0.46810540556907654, 0.845678985118866, 0.8783844113349915, 0.8498759269714355, 0.8486292362213135]
+
+RESNET MODEL:
+[0.47833457589149475, 0.6824014782905579, 0.8630645275115967, 0.923697292804718, 0.7874410152435303]
+
+EFFICIENTNET MODEL:
+[0.5163875818252563, 0.9081885814666748, 0.9081885814666748, 0.9081885814666748, 0.9093136787414551]
+
+VGGISH MODEL:
+[191.79489135742188, 0.7727272510528564, 0.5040425062179565, 0.01054590567946434, 0.02002726122736931]
