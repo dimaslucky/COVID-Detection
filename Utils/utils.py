@@ -4,12 +4,15 @@ import librosa
 from tqdm import tqdm
 import pandas as pd
 import pickle
+import lz4.frame
 import scipy
 import random
+from sklearn.metrics import f1_score
+from sklearn.metrics import classification_report, confusion_matrix
 
 output_lines = []
 
-def printAndAdd(lines, line_list):
+def printAndAdd(lines, line_list=output_lines):
     if(isinstance(lines, list)):    
         for line in lines:
             line = str(line)
@@ -20,7 +23,7 @@ def printAndAdd(lines, line_list):
         print(lines)
         line_list.append(lines)
 
-def printToFile(line_list, filename):
+def printToFile(filename, line_list=output_lines):
     os.chdir('/home/m13518003/Tugas Akhir')
     with open(filename, 'w+') as f:
         f.write('\n'.join(line_list))
@@ -29,8 +32,9 @@ def printToFile(line_list, filename):
 def pickleLoadAudio(fileList):
     iter = 0
     for files in fileList:
-        with open(files, 'rb') as file:
+        with lz4.frame.open(files, 'rb') as file:
             sig_batch, y_batch = pickle.load(file)
+            file.close()
         if(iter == 0):
             sig_batches = sig_batch
             y_batches = y_batch
@@ -183,3 +187,93 @@ def extract_mfcc(X_train_res, X_train_val, X_test):
     X_train_val = temp_val
 
     return X_train, X_train_val, X_test
+
+def extract_melspec_single(X):
+    X_res = []
+    sr = 16000
+
+    for sig in tqdm(X,  desc='Progress'):    
+        melspec = librosa.feature.melspectrogram(y=sig, sr=sr, n_fft=512, win_length=512, window=scipy.signal.hann(512), n_mels=128)
+        X_res.append(melspec)
+
+    return X_res
+
+def extract_mfcc_single(X):
+    X_res = []
+    sr = 16000
+
+    for sig in tqdm(X,  desc='Progress'):    
+        mfcc_ = librosa.feature.mfcc(y=sig, sr=sr, n_fft=512, n_mfcc=40)
+        X_res.append(mfcc_)
+
+    return X_res
+
+def revertCategorical(arr):
+    arr_res = []
+    for el in arr:
+        if(el[0] == 1):
+            arr_res.append(0)
+        if(el[1] == 1):
+            arr_res.append(1)
+    
+    np_arr = np.array(arr_res)
+
+    return np_arr
+
+def adjustPreds(arr):
+    preds = []
+    for el in arr:
+        if(np.argmax(el) == 0):
+            preds.append(0)
+        else:
+            preds.append(1)
+    
+    np_preds = np.array(preds)
+    return np_preds
+
+def getMetric(y_true, y_pred, mode):
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    if(mode == 'sensitivity'):
+        res = tp/(tp+fn)
+    elif(mode == 'specificity'):
+        res = tn/(tn+fp)
+
+    return res
+
+def matchList(arr1, arr2):
+    match0 = 0
+    match1 = 0
+    matches = 0
+    count0 = 0
+    count1 = 0
+    pred0count = 0
+    pred1count = 0
+    arr1_revert = revertCategorical(arr1)
+
+    for i in range(len(arr1_revert)):
+        if(arr1_revert[i] == 0):
+            count0 += 1
+            if(arr1_revert[i] == arr2[i]):
+                matches += 1
+                match0 += 1
+        if(arr1_revert[i] == 1):
+            count1 += 1
+            if(arr1_revert[i] == arr2[i]):
+                matches += 1
+                match1 += 1
+
+    for i in range(len(arr2)):
+        if(arr2[i] == 0):
+            pred0count += 1
+        if(arr2[i] == 1):
+            pred1count += 1
+    
+    printAndAdd('Predictions Matched: {} / {} ({})'.format(matches, len(arr1_revert), (matches/len(arr1_revert))))
+    printAndAdd('0 Label Correctly Predicted: {} / {}'.format(match0, count0))
+    printAndAdd('1 Label Correctly Predicted: {} / {}'.format(match1, count1))
+    printAndAdd('Predict 0 Count: {}'.format(pred0count))
+    printAndAdd('Predict 1 Count: {}'.format(pred1count))
+    printAndAdd('Sensitivity: {}'.format(getMetric(arr1_revert, arr2, 'sensitivity')))
+    printAndAdd('Specificity: {}'.format(getMetric(arr1_revert, arr2, 'specificity')))
+    printAndAdd('\nREPORT:')
+    printAndAdd(classification_report(arr1_revert, arr2))

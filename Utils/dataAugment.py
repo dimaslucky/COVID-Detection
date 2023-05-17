@@ -52,7 +52,7 @@ def reverb(y):
 
 def audioManipulate(sig_list, y_list):
     sr = 16000
-    high_outlier = 4.848000000000001
+    high_outlier = 4.768000000000001
     pos_idx = []
     augmented_sig = []
     for i in range(len(y_list)):
@@ -65,11 +65,65 @@ def audioManipulate(sig_list, y_list):
     for i in pos_idx:
         sig = sig_list[i]
         
+        #### AUGMENTATION METHOD 1 ####
+        # chance = random.randint(0,100)
+        # if(chance <= 20):
+        #     augmented_temp.append(stretch(sig))
+        # if(chance <= 40):
+        #     augmented_temp.append(time_shift(sig))
+        # if(chance <= 60):
+        #     augmented_temp.append(reverb(white_noise(sig)))
+        # if(chance <= 80):
+        #     augmented_temp.append(reverb(sig))
+        # if(chance <= 100):
+        #     augmented_temp.append(white_noise(sig))
+
+        #### AUGMENTATION METHOD 2 ####
+        # chance = random.randint(0,100)
+        # if(chance <= 20):
+        #     augmented_temp.append(white_noise(Gain(sig)))
+        # if(chance <= 40):
+        #     augmented_temp.append(reverb(Gain(sig)))
+        # if(chance <= 60):
+        #     augmented_temp.append(Gain(sig))
+        # if(chance <= 80):
+        #     augmented_temp.append(stretch(sig))
+        # if(chance <= 100):
+        #     augmented_temp.append(time_shift(sig))
+        # augmented_temp.append(reverb(sig))
+        # augmented_temp.append(white_noise(sig))
+
+        #### AUGMENTATION METHOD 3 ####
+        # chance = random.randint(0,100)
+        # if(chance <= 25):
+        #     augmented_temp.append(stretch(sig))
+        # if((chance > 25) and (chance <= 50)):
+        #     augmented_temp.append(time_shift(sig))
+        # if((chance > 50) and (chance <= 75)):
+        #     augmented_temp.append(white_noise(sig))
+        # if(chance > 75):
+        #     augmented_temp.append(reverb(sig))
+
+        #### AUGMENTATION METHOD 4 ####
+        # augmented_temp.append(stretch(sig))
+        # augmented_temp.append(time_shift(sig))
+        # augmented_temp.append(Gain(sig))
+        # augmented_temp.append(white_noise(sig))
+        # augmented_temp.append(reverb(sig))
+        # augmented_temp.append(reverb(white_noise(sig)))
+        # augmented_temp.append(reverb(Gain(sig)))
+        # augmented_temp.append(white_noise(Gain(sig)))
+
+        #### AUGMENTATION METHOD 5 ####
         augmented_temp.append(stretch(sig))
         augmented_temp.append(time_shift(sig))
         augmented_temp.append(Gain(sig))
         augmented_temp.append(white_noise(sig))
         augmented_temp.append(reverb(sig))
+        augmented_temp.append(reverb(white_noise(sig)))
+        augmented_temp.append(reverb(Gain(sig)))
+        augmented_temp.append(white_noise(Gain(sig)))
+        augmented_temp.append(time_shift(white_noise(sig)))
 
     printAndAdd('Total of generated data:', output_lines)
     printAndAdd(len(augmented_temp), output_lines)
