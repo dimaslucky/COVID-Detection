@@ -17,6 +17,7 @@ from collections import Counter
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
 from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler, SMOTE
 
 os.environ["CUDA_VISIBLE_DEVICES"]="3"
 
@@ -62,6 +63,9 @@ printAndAdd(Counter(y_train_val), output_lines)
 
 ########## DATA AUGMENTATION PROCESS #############
 printAndAdd('\n############### DATA AUGMENTATION PROCESS ###################', output_lines)
+rus = RandomUnderSampler(random_state=42)
+ros = RandomOverSampler(random_state=42)
+smt = SMOTE()
 
 printAndAdd('Train data Before:', output_lines)
 printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
@@ -71,10 +75,16 @@ printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
 X_train, y_train = audioManipulate(X_train, y_train)
 X_train_val, y_train_val = audioManipulate(X_train_val, y_train_val)
 
+#undersampling trial
+X_train, y_train = rus.fit_resample(X_train, y_train.ravel())
+X_train_val, y_train_val = rus.fit_resample(X_train_val, y_train_val.ravel())
+
 printAndAdd('Train data after augmentation:', output_lines)
 printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
 printAndAdd('Validation data after augmentation:', output_lines)
 printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
+printAndAdd('Training data after:')
+printAndAdd(Counter(y_train), output_lines)
 
 X_train, y_train = shuffle_list(X_train, y_train)
 X_train_val, y_train_val = shuffle_list(X_train_val, y_train_val)
@@ -114,22 +124,22 @@ history = model.fit(X_train,y_train ,
 make_train_plot('ManipMFCC', 'CNN', history, 0)
 
 
-########## RESNET MODEL #############
-print('\n############### RESNET MODEL ###################')
+# ########## RESNET MODEL #############
+# print('\n############### RESNET MODEL ###################')
 
-model_resnet = build_resnet(INPUTSHAPE)
+# model_resnet = build_resnet(INPUTSHAPE)
 
-callback = tf.keras.callbacks.EarlyStopping(
-    monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
-    baseline=None, restore_best_weights=False)
+# callback = tf.keras.callbacks.EarlyStopping(
+#     monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
+#     baseline=None, restore_best_weights=False)
 
-history_resnet = model_resnet.fit(X_train,y_train ,
-            validation_data=(X_train_val,y_train_val),
-            epochs=100,
-            # callbacks = [callback],
-            batch_size=batch_size)
+# history_resnet = model_resnet.fit(X_train,y_train ,
+#             validation_data=(X_train_val,y_train_val),
+#             epochs=100,
+#             # callbacks = [callback],
+#             batch_size=batch_size)
 
-make_train_plot('ManipMFCC', 'Resnet', history_resnet, 1)
+# make_train_plot('ManipMFCC', 'Resnet', history_resnet, 1)
 
 ########## VGGish MODEL #############
 print('\n############### VGGish MODEL ###################')
@@ -147,7 +157,7 @@ history_vggish = model_vggish.fit(X_train,y_train ,
             # callbacks = [callback],
             batch_size=batch_size)
 
-make_train_plot('ManipMFCC', 'VGGish', history_vggish, 2)
+make_train_plot('ManipMFCC', 'VGGish', history_vggish, 1)
 
 # ########## EVALUATION #############
 printAndAdd('\n############### EVALUATION ###################', output_lines)
@@ -156,8 +166,8 @@ printAndAdd('Metrics : Loss, Precision, AUC, Recall, F1 Score, Specificity', out
 printAndAdd('CNN MODEL:', output_lines)
 printAndAdd(str(model.evaluate(X_test, y_test)), output_lines)
 
-printAndAdd('\nRESNET MODEL:', output_lines)
-printAndAdd(str(model_resnet.evaluate(X_test, y_test)), output_lines)
+# printAndAdd('\nRESNET MODEL:', output_lines)
+# printAndAdd(str(model_resnet.evaluate(X_test, y_test)), output_lines)
 
 printAndAdd('\nVGGISH MODEL:', output_lines)
 printAndAdd(str(model_vggish.evaluate(X_test, y_test)), output_lines)
@@ -173,10 +183,10 @@ preds = model.predict(X_test)
 preds = adjustPreds(preds)
 matchList(y_test, preds)
 
-printAndAdd('\nRESNET MODEL:')
-preds = model_resnet.predict(X_test)
-preds = adjustPreds(preds)
-matchList(y_test, preds)
+# printAndAdd('\nRESNET MODEL:')
+# preds = model_resnet.predict(X_test)
+# preds = adjustPreds(preds)
+# matchList(y_test, preds)
 
 printAndAdd('\nVGGish MODEL:')
 preds = model_vggish.predict(X_test)

@@ -16,7 +16,7 @@ import pickle
 from collections import Counter
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN, SMOTETomek
-from imblearn.under_sampling import RandomUnderSampler, TomekLinks
+from imblearn.under_sampling import RandomUnderSampler, TomekLinks, EditedNearestNeighbours
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import make_pipeline
 
@@ -84,140 +84,121 @@ printAndAdd(Counter(y_train_val), output_lines)
 
 ########## SMOTE-ENN PROCESS #############
 printAndAdd('\n############### SMOTE-ENN PROCESS ###################', output_lines)
-tl = TomekLinks(sampling_strategy={1: 3000})
-smt = SMOTE(sampling_strategy={1: 2500})
-pipe = make_pipeline(smt, tl)
 
 printAndAdd("Before OverSampling, counts of y label: {}".format(Counter(y_train)), output_lines)
 
-# sm = SMOTEENN(random_state=2, sampling_strategy=0.2)
+smt = SMOTE(sampling_strategy={1: 2700})
+rus = RandomUnderSampler(random_state=42)
+pipe = make_pipeline(smt, rus)
+sm = SMOTEENN(random_state=2, sampling_strategy=0.2)
 # sm = SMOTEENN(random_state=2, sampling_strategy='all')
-
-printAndAdd('############# SMOTETOMEK Sampling Strategy All #############')
-# sm = SMOTETomek(random_state=2, sampling_strategy='all')
-# sm = SMOTETomek()
 X_train_res, y_train_res = pipe.fit_resample(X_train, y_train.ravel())
 
 printAndAdd('After OverSampling, the shape of X_train: {}'.format(X_train_res.shape), output_lines)
 printAndAdd('After OverSampling, the shape of y: {} \n'.format(y_train_res.shape), output_lines)
 printAndAdd("After OverSampling, counts of label '0': {}".format(sum(y_train_res==0)), output_lines)
 printAndAdd("After OverSampling, counts of label '1': {}".format(sum(y_train_res==1)), output_lines)
-printToFile('SMOTEENN_Melspec.txt')
 
-strats = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+########## FEATURE EXTRACTION #############
+printAndAdd('\n############### FEATURE EXTRACTION ###################', output_lines)
 
-# for strat in strats:
-#     printAndAdd('############# SMOTETOMEK Sampling Strategy {} #############'.format(strat))
-#     sm = SMOTETomek(random_state=2, sampling_strategy=strat)
+X_train, X_train_val, X_test = extract_melspec(X_train_res, X_train_val, X_test)
 
-#     X_train_res, y_train_res = sm.fit_resample(X_train, y_train.ravel())
+X_train, X_test, X_train_val, y_train, y_test, y_train_val = prep_cnn_input(X_train, X_test, X_train_val, y_train_res, y_test, y_train_val)
 
-#     printAndAdd('After OverSampling, the shape of X_train: {}'.format(X_train_res.shape), output_lines)
-#     printAndAdd('After OverSampling, the shape of y: {} \n'.format(y_train_res.shape), output_lines)
-#     printAndAdd("After OverSampling, counts of label '0': {}".format(sum(y_train_res==0)), output_lines)
-#     printAndAdd("After OverSampling, counts of label '1': {}".format(sum(y_train_res==1)), output_lines)
-#     printToFile('SMOTEENN_Melspec.txt')
+printAndAdd("X Train Shape is: " + str(X_train.shape), output_lines)
+printAndAdd("y Train Shape is: " + str(y_train.shape), output_lines)
+printAndAdd("X Test Shape is: " + str(X_test.shape), output_lines)
+printAndAdd("y Test Shape is: " + str(y_test.shape), output_lines)
+printAndAdd("X Val Shape is: " + str(X_train_val.shape), output_lines)
+printAndAdd("y Val Shape is: " + str(y_train_val.shape), output_lines)
 
-# ########## FEATURE EXTRACTION #############
-# printAndAdd('\n############### FEATURE EXTRACTION ###################', output_lines)
+INPUTSHAPE = (X_train.shape[1], X_train.shape[2], 1)
 
-# X_train, X_train_val, X_test = extract_melspec(X_train_res, X_train_val, X_test)
+########## CNN MODEL #############
+print('\n############### CNN MODEL ###################')
 
-# X_train, X_test, X_train_val, y_train, y_test, y_train_val = prep_cnn_input(X_train, X_test, X_train_val, y_train_res, y_test, y_train_val)
+model = build_cnn(INPUTSHAPE)
+batch_size = 256
+callback = tf.keras.callbacks.EarlyStopping(
+    monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
+    baseline=None, restore_best_weights=False)
 
-# printAndAdd("X Train Shape is: " + str(X_train.shape), output_lines)
-# printAndAdd("y Train Shape is: " + str(y_train.shape), output_lines)
-# printAndAdd("X Test Shape is: " + str(X_test.shape), output_lines)
-# printAndAdd("y Test Shape is: " + str(y_test.shape), output_lines)
-# printAndAdd("X Val Shape is: " + str(X_train_val.shape), output_lines)
-# printAndAdd("y Val Shape is: " + str(y_train_val.shape), output_lines)
+history = model.fit(X_train,y_train ,
+            validation_data=(X_train_val,y_train_val),
+            epochs=100,
+            # callbacks = [callback],
+            batch_size=batch_size)
 
-# INPUTSHAPE = (X_train.shape[1], X_train.shape[2], 1)
-
-# ########## CNN MODEL #############
-# print('\n############### CNN MODEL ###################')
-
-# model = build_cnn(INPUTSHAPE)
-# batch_size = 256
-# callback = tf.keras.callbacks.EarlyStopping(
-#     monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
-#     baseline=None, restore_best_weights=False)
-
-# history = model.fit(X_train,y_train ,
-#             validation_data=(X_train_val,y_train_val),
-#             epochs=100,
-#             # callbacks = [callback],
-#             batch_size=batch_size)
-
-# make_train_plot('SMOTEMelspec', 'CNN', history, 0)
+make_train_plot('SMOTEMelspec', 'CNN', history, 0)
 
 
-# ########## RESNET MODEL #############
-# print('\n############### RESNET MODEL ###################')
+########## RESNET MODEL #############
+print('\n############### RESNET MODEL ###################')
 
-# model_resnet = build_resnet(INPUTSHAPE)
+model_resnet = build_resnet(INPUTSHAPE)
 
-# callback = tf.keras.callbacks.EarlyStopping(
-#     monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
-#     baseline=None, restore_best_weights=False)
+callback = tf.keras.callbacks.EarlyStopping(
+    monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
+    baseline=None, restore_best_weights=False)
 
-# history_resnet = model_resnet.fit(X_train,y_train ,
-#             validation_data=(X_train_val,y_train_val),
-#             epochs=100,
-#             # callbacks = [callback],
-#             batch_size=batch_size)
+history_resnet = model_resnet.fit(X_train,y_train ,
+            validation_data=(X_train_val,y_train_val),
+            epochs=100,
+            # callbacks = [callback],
+            batch_size=batch_size)
 
-# make_train_plot('SMOTEMelspec', 'Resnet', history_resnet, 1)
+make_train_plot('SMOTEMelspec', 'Resnet', history_resnet, 1)
 
-# ########## VGGish MODEL #############
-# print('\n############### VGGish MODEL ###################')
+########## VGGish MODEL #############
+print('\n############### VGGish MODEL ###################')
 
-# model_vggish = build_vggish(INPUTSHAPE)
-# batch_size = 64
+model_vggish = build_vggish(INPUTSHAPE)
+batch_size = 64
 
-# callback = tf.keras.callbacks.EarlyStopping(
-#     monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
-#     baseline=None, restore_best_weights=False)
+callback = tf.keras.callbacks.EarlyStopping(
+    monitor='val_get_f1', min_delta=0.01, patience=10, verbose=0, mode='max',
+    baseline=None, restore_best_weights=False)
 
-# history_vggish = model_vggish.fit(X_train,y_train ,
-#             validation_data=(X_train_val,y_train_val),
-#             epochs=200,
-#             # callbacks = [callback],
-#             batch_size=batch_size)
+history_vggish = model_vggish.fit(X_train,y_train ,
+            validation_data=(X_train_val,y_train_val),
+            epochs=200,
+            # callbacks = [callback],
+            batch_size=batch_size)
 
-# make_train_plot('SMOTEMelspec', 'VGGish', history_vggish, 2)
+make_train_plot('SMOTEMelspec', 'VGGish', history_vggish, 2)
 
-# # ########## EVALUATION #############
-# printAndAdd('\n############### EVALUATION ###################', output_lines)
-# printAndAdd('Metrics : Loss, Precision, AUC, Recall, F1 Score, Specificity', output_lines)
+# ########## EVALUATION #############
+printAndAdd('\n############### EVALUATION ###################', output_lines)
+printAndAdd('Metrics : Loss, Precision, AUC, Recall, F1 Score, Specificity', output_lines)
 
-# printAndAdd('CNN MODEL:', output_lines)
-# printAndAdd(str(model.evaluate(X_test, y_test)), output_lines)
+printAndAdd('CNN MODEL:', output_lines)
+printAndAdd(str(model.evaluate(X_test, y_test)), output_lines)
 
-# printAndAdd('\nRESNET MODEL:', output_lines)
-# printAndAdd(str(model_resnet.evaluate(X_test, y_test)), output_lines)
+printAndAdd('\nRESNET MODEL:', output_lines)
+printAndAdd(str(model_resnet.evaluate(X_test, y_test)), output_lines)
 
-# printAndAdd('\nVGGISH MODEL:', output_lines)
-# printAndAdd(str(model_vggish.evaluate(X_test, y_test)), output_lines)
+printAndAdd('\nVGGISH MODEL:', output_lines)
+printAndAdd(str(model_vggish.evaluate(X_test, y_test)), output_lines)
 
-# ########## PREDICTIONS #############
-# printAndAdd('\n############### PREDICTIONS ###################')
-# printAndAdd('Test Data Count:')
-# printAndAdd(Counter(revertCategorical(y_test)))
+########## PREDICTIONS #############
+printAndAdd('\n############### PREDICTIONS ###################')
+printAndAdd('Test Data Count:')
+printAndAdd(Counter(revertCategorical(y_test)))
 
-# printAndAdd('CNN MODEL:')
-# preds = model.predict(X_test)
-# preds = adjustPreds(preds)
-# matchList(y_test, preds)
+printAndAdd('CNN MODEL:')
+preds = model.predict(X_test)
+preds = adjustPreds(preds)
+matchList(y_test, preds)
 
-# printAndAdd('\nRESNET MODEL:')
-# preds = model_resnet.predict(X_test)
-# preds = adjustPreds(preds)
-# matchList(y_test, preds)
+printAndAdd('\nRESNET MODEL:')
+preds = model_resnet.predict(X_test)
+preds = adjustPreds(preds)
+matchList(y_test, preds)
 
-# printAndAdd('\nVGGish MODEL:')
-# preds = model_vggish.predict(X_test)
-# preds = adjustPreds(preds)
-# matchList(y_test, preds)
+printAndAdd('\nVGGish MODEL:')
+preds = model_vggish.predict(X_test)
+preds = adjustPreds(preds)
+matchList(y_test, preds)
 
 printToFile('SMOTEENN_Melspec.txt')

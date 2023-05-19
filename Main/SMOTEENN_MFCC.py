@@ -16,7 +16,9 @@ import pickle
 from collections import Counter
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
+from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
+from imblearn.pipeline import make_pipeline
 
 os.environ["CUDA_VISIBLE_DEVICES"]="6"
 
@@ -85,9 +87,12 @@ printAndAdd('\n############### SMOTE-ENN PROCESS ###################', output_li
 
 printAndAdd("Before OverSampling, counts of y label: {}".format(Counter(y_train)), output_lines)
 
-# sm = SMOTEENN(random_state=2, sampling_strategy=0.2)
-sm = SMOTEENN(random_state=2, sampling_strategy='all')
-X_train_res, y_train_res = sm.fit_resample(X_train, y_train.ravel())
+smt = SMOTE(sampling_strategy={1: 1800})
+rus = RandomUnderSampler(random_state=42)
+pipe = make_pipeline(smt, rus)
+sm = SMOTEENN(random_state=2, sampling_strategy=0.2)
+# sm = SMOTEENN(random_state=2, sampling_strategy='all')
+X_train_res, y_train_res = pipe.fit_resample(X_train, y_train.ravel())
 
 printAndAdd('After OverSampling, the shape of X_train: {}'.format(X_train_res.shape), output_lines)
 printAndAdd('After OverSampling, the shape of y: {} \n'.format(y_train_res.shape), output_lines)
