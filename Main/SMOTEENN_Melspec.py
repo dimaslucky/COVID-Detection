@@ -20,7 +20,7 @@ from imblearn.under_sampling import RandomUnderSampler, TomekLinks, EditedNeares
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import make_pipeline
 
-os.environ["CUDA_VISIBLE_DEVICES"]="7"
+os.environ["CUDA_VISIBLE_DEVICES"]="5"
 
 ########## LOAD PICKLE #############
 printAndAdd('\n############### LOAD PICKLE ###################', output_lines)
@@ -62,49 +62,40 @@ printAndAdd(Counter(y_train_val), output_lines)
 # printAndAdd('Test Data after undersampling: {}'.format(Counter(y_test)))
 # ##undersample test data##
 
-# ########## DATA AUGMENTATION PROCESS #############
-# printAndAdd('\n############### DATA AUGMENTATION PROCESS ###################', output_lines)
+########## DATA AUGMENTATION PROCESS #############
+printAndAdd('\n############### DATA AUGMENTATION PROCESS ###################', output_lines)
+rus = RandomUnderSampler(random_state=42)
+smt = SMOTE(sampling_strategy={1: 1200})
 
-# printAndAdd('Train data Before:', output_lines)
-# printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
-# printAndAdd('Validation data Before:', output_lines)
-# printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
+printAndAdd('Train data Before:', output_lines)
+printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
+printAndAdd('Validation data Before:', output_lines)
+printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
 
-# X_train, y_train = audioManipulate(X_train, y_train)
+X_train, y_train = smt.fit_resample(X_train, y_train.ravel())
 # X_train_val, y_train_val = audioManipulate(X_train_val, y_train_val)
 
-# printAndAdd('Train data after augmentation:', output_lines)
-# printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
-# printAndAdd('Validation data after augmentation:', output_lines)
-# printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
+#undersampling trial
+X_train, y_train = rus.fit_resample(X_train, y_train.ravel())
+# X_train_val, y_train_val = rus.fit_resample(X_train_val, y_train_val.ravel())
 
-# X_train, y_train = shuffle_list(X_train, y_train)
-# X_train_val, y_train_val = shuffle_list(X_train_val, y_train_val)
-# X_test, y_test = shuffle_list(X_test, y_test)
+printAndAdd('Train data after augmentation:', output_lines)
+printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
+printAndAdd('Validation data after augmentation:', output_lines)
+printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
+printAndAdd('Training data after:')
+printAndAdd(Counter(y_train), output_lines)
 
-########## SMOTE-ENN PROCESS #############
-printAndAdd('\n############### SMOTE-ENN PROCESS ###################', output_lines)
-
-printAndAdd("Before OverSampling, counts of y label: {}".format(Counter(y_train)), output_lines)
-
-smt = SMOTE(sampling_strategy={1: 2700})
-rus = RandomUnderSampler(random_state=42)
-pipe = make_pipeline(smt, rus)
-sm = SMOTEENN(random_state=2, sampling_strategy=0.2)
-# sm = SMOTEENN(random_state=2, sampling_strategy='all')
-X_train_res, y_train_res = pipe.fit_resample(X_train, y_train.ravel())
-
-printAndAdd('After OverSampling, the shape of X_train: {}'.format(X_train_res.shape), output_lines)
-printAndAdd('After OverSampling, the shape of y: {} \n'.format(y_train_res.shape), output_lines)
-printAndAdd("After OverSampling, counts of label '0': {}".format(sum(y_train_res==0)), output_lines)
-printAndAdd("After OverSampling, counts of label '1': {}".format(sum(y_train_res==1)), output_lines)
+X_train, y_train = shuffle_list(X_train, y_train)
+X_train_val, y_train_val = shuffle_list(X_train_val, y_train_val)
+X_test, y_test = shuffle_list(X_test, y_test)
 
 ########## FEATURE EXTRACTION #############
 printAndAdd('\n############### FEATURE EXTRACTION ###################', output_lines)
 
-X_train, X_train_val, X_test = extract_melspec(X_train_res, X_train_val, X_test)
+X_train, X_train_val, X_test = extract_melspec(X_train, X_train_val, X_test)
 
-X_train, X_test, X_train_val, y_train, y_test, y_train_val = prep_cnn_input(X_train, X_test, X_train_val, y_train_res, y_test, y_train_val)
+X_train, X_test, X_train_val, y_train, y_test, y_train_val = prep_cnn_input(X_train, X_test, X_train_val, y_train, y_test, y_train_val)
 
 printAndAdd("X Train Shape is: " + str(X_train.shape), output_lines)
 printAndAdd("y Train Shape is: " + str(y_train.shape), output_lines)
@@ -126,7 +117,7 @@ callback = tf.keras.callbacks.EarlyStopping(
 
 history = model.fit(X_train,y_train ,
             validation_data=(X_train_val,y_train_val),
-            epochs=100,
+            epochs=200,
             # callbacks = [callback],
             batch_size=batch_size)
 

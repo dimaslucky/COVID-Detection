@@ -62,6 +62,7 @@ def audioManipulate(sig_list, y_list):
     augmented_temp = []
     y_temp = []
 
+    count = 0
     for i in pos_idx:
         sig = sig_list[i]
         
@@ -78,18 +79,18 @@ def audioManipulate(sig_list, y_list):
         # if(chance <= 100):
         #     augmented_temp.append(white_noise(sig))
 
-        #### AUGMENTATION METHOD 2 ####
-        chance = random.randint(0,100)
-        if(chance <= 20):
-            augmented_temp.append(stretch(sig))
-        elif(chance <= 40):
-            augmented_temp.append(time_shift(sig))
-        elif(chance <= 60):
-            augmented_temp.append(reverb(white_noise(sig)))
-        elif(chance <= 80):
-            augmented_temp.append(reverb(sig))
-        elif(chance <= 100):
-            augmented_temp.append(white_noise(sig))
+        # #### AUGMENTATION METHOD 2 ####
+        # chance = random.randint(0,100)
+        # if(chance <= 20):
+        #     pass
+        # elif(chance <= 40):
+        #     augmented_temp.append(time_shift(sig))
+        # elif(chance <= 60):
+        #     augmented_temp.append(stretch(sig))
+        # elif(chance <= 80):
+        #     augmented_temp.append(reverb(sig))
+        # elif(chance <= 100):
+        #     augmented_temp.append(white_noise(sig))
 
         ### AUGMENTATION METHOD 3 ####
         # chance = random.randint(0,100)
@@ -133,6 +134,16 @@ def audioManipulate(sig_list, y_list):
         # augmented_temp.append(white_noise(sig))
         # augmented_temp.append(reverb(sig))
         # augmented_temp.append(reverb(white_noise(sig)))
+
+        #### AUGMENTATION METHOD 7 ####
+        # chance = random.randint(0,100)
+        # if(chance <= 50):
+        #     augmented_temp.append(white_noise(sig))
+
+        #### AUGMENTATION METHOD 8 ####
+        if(count <= 595):
+            augmented_temp.append(white_noise(sig))
+            count += 1
 
     printAndAdd('Total of generated data:', output_lines)
     printAndAdd(len(augmented_temp), output_lines)

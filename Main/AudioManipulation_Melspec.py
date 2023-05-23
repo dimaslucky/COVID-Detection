@@ -17,6 +17,7 @@ from collections import Counter
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
 from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler, SMOTE
 
 os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
@@ -62,6 +63,8 @@ printAndAdd(Counter(y_train_val), output_lines)
 
 ########## DATA AUGMENTATION PROCESS #############
 printAndAdd('\n############### DATA AUGMENTATION PROCESS ###################', output_lines)
+rus = RandomUnderSampler(random_state=42)
+smt = SMOTE(sampling_strategy={1: 1000})
 
 printAndAdd('Train data Before:', output_lines)
 printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
@@ -69,12 +72,18 @@ printAndAdd('Validation data Before:', output_lines)
 printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
 
 X_train, y_train = audioManipulate(X_train, y_train)
-X_train_val, y_train_val = audioManipulate(X_train_val, y_train_val)
+# X_train_val, y_train_val = audioManipulate(X_train_val, y_train_val)
+
+#undersampling trial
+X_train, y_train = rus.fit_resample(X_train, y_train.ravel())
+# X_train_val, y_train_val = rus.fit_resample(X_train_val, y_train_val.ravel())
 
 printAndAdd('Train data after augmentation:', output_lines)
 printAndAdd(str(X_train.shape) + str(y_train.shape), output_lines)
 printAndAdd('Validation data after augmentation:', output_lines)
 printAndAdd(str(X_train_val.shape) + str(y_train_val.shape), output_lines)
+printAndAdd('Training data after:')
+printAndAdd(Counter(y_train), output_lines)
 
 X_train, y_train = shuffle_list(X_train, y_train)
 X_train_val, y_train_val = shuffle_list(X_train_val, y_train_val)
@@ -107,7 +116,7 @@ callback = tf.keras.callbacks.EarlyStopping(
 
 history = model.fit(X_train,y_train ,
             validation_data=(X_train_val,y_train_val),
-            epochs=100,
+            epochs=200,
             # callbacks = [callback],
             batch_size=batch_size)
 

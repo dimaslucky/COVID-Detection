@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
 from imblearn.under_sampling import RandomUnderSampler
 
-os.environ["CUDA_VISIBLE_DEVICES"]="3"
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
 ########## LOAD PICKLE #############
 printAndAdd('\n############### LOAD PICKLE ###################', output_lines)
