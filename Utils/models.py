@@ -1,3 +1,5 @@
+import Utils
+from utils import *
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -83,7 +85,9 @@ def build_cnn(inputshape):
 
     model.compile(loss = 'binary_crossentropy', optimizer = opt, 
                 metrics = [tf.keras.metrics.Precision(), tf.keras.metrics.AUC(), tf.keras.metrics.Recall(), get_f1, specificity])
-    model.summary()
+    # model.summary()
+    with open('CNN_Model.txt', 'w') as f:
+        model.summary(print_fn=lambda x: f.write(x + '\n'))
     return model
 
 def build_resnet(inputshape):
@@ -102,6 +106,9 @@ def build_resnet(inputshape):
 
     model_resnet.compile(optimizer=opt, loss='binary_crossentropy', 
                         metrics=[tf.keras.metrics.Precision(), tf.keras.metrics.AUC(), tf.keras.metrics.Recall(), get_f1, specificity])
+
+    with open('ResNet50_Model.txt', 'w') as f:
+        model_resnet.summary(print_fn=lambda x: f.write(x + '\n'))
 
     return model_resnet
 
@@ -141,6 +148,9 @@ def build_vggish(inputshape):
 
     model_vggish.compile(optimizer=opt, loss='binary_crossentropy', 
                         metrics=[tf.keras.metrics.Precision(), tf.keras.metrics.AUC(), tf.keras.metrics.Recall(), get_f1, specificity])
+
+    with open('VGGish_Model.txt', 'w') as f:
+        model_vggish.summary(print_fn=lambda x: f.write(x + '\n'))
 
     return model_vggish
 

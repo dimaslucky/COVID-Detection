@@ -141,7 +141,7 @@ def audioManipulate(sig_list, y_list):
         #     augmented_temp.append(white_noise(sig))
 
         #### AUGMENTATION METHOD 8 ####
-        if(count <= 595):
+        if(count <= 95):
             augmented_temp.append(white_noise(sig))
             count += 1
 
